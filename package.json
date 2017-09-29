@@ -17,7 +17,8 @@
   },
   "homepage": "https://github.com/Kxze/Clyde#readme",
   "dependencies": {
-    "blessed": "^0.1.81"
+    "blessed": "^0.1.81",
+    "discord.js": "^11.2.1"
   },
   "devDependencies": {
     "typescript": "^2.5.3"

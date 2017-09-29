@@ -1,8 +1,11 @@
 const blessed = require('blessed');
+const discord = require('discord.js');
 
 const screen = blessed.screen({
     smartCSR: true
 });
+
+const Client = new discord.Client();
 
 const chat = blessed.box({
     top: 0,
@@ -42,6 +45,15 @@ const renderUI = () => {
 const pushMessage = (text) => {
     chat.pushLine(text);
     chat.setScrollPerc(100);
+    screen.render();
 }
 
-renderUI();
+Client.on('ready', () => {
+    renderUI();
+});
+
+Client.on('message', (msg) => {
+    pushMessage(`> ${msg.author.username}: ${msg.content}`);
+});
+
+Client.login("OTEzODc5NDM2NzkxNzI2MDg.DDlttA.UruedfL9Ubxc4hVb7281HO9J2A4");
