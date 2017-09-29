@@ -10,6 +10,8 @@ const chat = blessed.box({
     width: '100%',
     height: '90%',
     content: 'hello!',
+    scrollable: true,
+    alwaysScroll: true,
     border: {
         type: 'line'
     },
@@ -24,13 +26,22 @@ const input = blessed.textbox({
 });
 
 input.on('submit', (text) => {
-    chat.setContent(chat.content + '\n' + text);
-    screen.render();
-    input.clearValue();
+    pushMessage(text);
     input.focus();
+    input.clearValue();
+    screen.render();
 });
 
-screen.append(chat);
-screen.append(input);
-input.focus();
-screen.render();
+const renderUI = () => {
+    screen.append(chat);
+    screen.append(input);
+    input.focus();
+    screen.render();
+}
+
+const pushMessage = (text) => {
+    chat.pushLine(text);
+    chat.setScrollPerc(100);
+}
+
+renderUI();
