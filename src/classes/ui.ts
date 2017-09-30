@@ -1,5 +1,6 @@
 import * as blessed from 'blessed';
 import * as discord from 'discord.js';
+import * as mz from 'mz';
 
 export class UI {
     screen: blessed.Widgets.Screen;
@@ -35,7 +36,7 @@ export class UI {
     renderGuildSelect() {
         const guilds = this.client.guilds;
         const selectScreen = blessed.list({
-            items: guilds.map(i => i.name),
+            items: guilds.map((i: discord.Guild) => i.name),
             parent: this.screen,
             label: 'Guilds: ',
             draggable: true,
@@ -185,22 +186,17 @@ export class UI {
         this.screen.render();
     }
 
-    formatText(string: string) {
-        const bold = /\*\*([^\*]*)\*\*/;
-        const underline = /__([^\*]*)__/;
-
-        string = string.replace(bold, '{bold}$1{/bold}');
-        string = string.replace(underline, '{underline}$1{/underline}')
-        return string;
-    }
-
     pushMessage(text: string) {
-        this.chat.pushLine(this.formatText(text));
+        this.chat.pushLine(text);
         this.chat.setScrollPerc(100);
         this.screen.render();
     }
 
     setDiscordClient(client: discord.Client) {
         this.client = client;
+    }
+
+    log() {
+
     }
 }
