@@ -5,6 +5,7 @@ export class UI {
     screen: blessed.Widgets.Screen;
     chat: blessed.Widgets.BoxElement;
     input: blessed.Widgets.TextboxElement;
+    loading: blessed.Widgets.BoxElement;
     program: any;
 
     client: discord.Client;
@@ -15,10 +16,6 @@ export class UI {
         this.screen = blessed.screen({
             fullUnicode: true,
         });
-
-        this.screen.key('C-c', () => {
-            process.exit(0);
-        });
     }
 
     init() {
@@ -28,6 +25,11 @@ export class UI {
         else {
             this.renderUI();
         }
+    }
+
+    hideUI() {
+        this.chat.destroy();
+        this.input.destroy();
     }
 
     renderGuildSelect() {
@@ -64,6 +66,7 @@ export class UI {
             this.renderChannelSelect();
         });
 
+        selectScreen.focus();
         this.screen.render();
     }
 
@@ -101,6 +104,18 @@ export class UI {
             this.renderUI();
         });
 
+        selectScreen.focus();
+        this.screen.render();
+    }
+
+    initLoading() {
+        this.loading = blessed.box({
+            top: 'center',
+            left: 'center',
+            content: 'loading...'
+        });
+
+        this.screen.append(this.loading);
         this.screen.render();
     }
 
@@ -140,6 +155,24 @@ export class UI {
             this.input.clearValue();
             this.screen.render();
             this.input.focus();
+        });
+
+        this.input.key('escape', () => {
+            process.exit(0);
+        });
+
+        this.input.key('escape', () => {
+            process.exit(0);
+        });
+
+        this.input.key('C-k', () => {
+            this.hideUI();
+            this.renderChannelSelect();
+        });
+
+        this.input.key('C-s', () => {
+            this.hideUI();
+            this.renderGuildSelect();
         });
 
         this.screen.append(this.chat);

@@ -41,9 +41,6 @@ var UI = /** @class */ (function () {
         this.screen = blessed.screen({
             fullUnicode: true,
         });
-        this.screen.key('C-c', function () {
-            process.exit(0);
-        });
     }
     UI.prototype.init = function () {
         if (!this.activeGuild) {
@@ -52,6 +49,10 @@ var UI = /** @class */ (function () {
         else {
             this.renderUI();
         }
+    };
+    UI.prototype.hideUI = function () {
+        this.chat.destroy();
+        this.input.destroy();
     };
     UI.prototype.renderGuildSelect = function () {
         var _this = this;
@@ -86,6 +87,7 @@ var UI = /** @class */ (function () {
             selectScreen.destroy();
             _this.renderChannelSelect();
         });
+        selectScreen.focus();
         this.screen.render();
     };
     UI.prototype.renderChannelSelect = function () {
@@ -121,6 +123,16 @@ var UI = /** @class */ (function () {
             selectScreen.destroy();
             _this.renderUI();
         });
+        selectScreen.focus();
+        this.screen.render();
+    };
+    UI.prototype.initLoading = function () {
+        this.loading = blessed.box({
+            top: 'center',
+            left: 'center',
+            content: 'loading...'
+        });
+        this.screen.append(this.loading);
         this.screen.render();
     };
     UI.prototype.renderUI = function () {
@@ -169,6 +181,20 @@ var UI = /** @class */ (function () {
                 }
             });
         }); });
+        this.input.key('escape', function () {
+            process.exit(0);
+        });
+        this.input.key('escape', function () {
+            process.exit(0);
+        });
+        this.input.key('C-k', function () {
+            _this.hideUI();
+            _this.renderChannelSelect();
+        });
+        this.input.key('C-s', function () {
+            _this.hideUI();
+            _this.renderGuildSelect();
+        });
         this.screen.append(this.chat);
         this.screen.append(this.input);
         this.input.focus();

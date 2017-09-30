@@ -7,6 +7,7 @@ const main = async () => {
     const config = JSON.parse(await mz.fs.readFile(__dirname + '/config.json', 'utf8'));
     const Client = new discord.Client();
     const GUI = new UI();
+    GUI.initLoading();
 
     Client.on('ready', () => {
         GUI.setDiscordClient(Client);

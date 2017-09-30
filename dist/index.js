@@ -50,6 +50,7 @@ var main = function () { return __awaiter(_this, void 0, void 0, function () {
                 config = _b.apply(_a, [_c.sent()]);
                 Client = new discord.Client();
                 GUI = new ui_1.UI();
+                GUI.initLoading();
                 Client.on('ready', function () {
                     GUI.setDiscordClient(Client);
                     GUI.init();
