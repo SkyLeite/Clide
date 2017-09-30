@@ -46,7 +46,9 @@ export class UI {
             scrollable: true,
             keys: true,
             mouse: true,
-            vi: true,
+            border: {
+                type: 'line'
+            },
             style: {
                 item: {
                     hover: {
@@ -84,7 +86,9 @@ export class UI {
             scrollable: true,
             keys: true,
             mouse: true,
-            vi: true,
+            border: {
+                type: 'line'
+            },
             style: {
                 item: {
                     hover: {
