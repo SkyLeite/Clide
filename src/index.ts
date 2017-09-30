@@ -22,14 +22,29 @@ const main = async () => {
         return string;
     }
 
-    const formatMessage = async (string: string, guild: discord.Guild) => {
+    const formatAttachments = (msg: discord.Message, string: string) => {
+        if (msg.attachments.array().length > 0) {
+            string += " (";
+            for (let attachment of msg.attachments.array()) {
+                string += attachment.url;
+            }
+            string += ")";
+        }
+
+        return string;
+    }
+
+    const formatMessage = async (msg: discord.Message, guild: discord.Guild) => {
+        let string = msg.content;
         const bold = /\*\*([^\*]*)\*\*/g;
         const underline = /__([^\*]*)__/g;
 
         string = string.replace(bold, '{bold}$1{/bold}');
         string = string.replace(underline, '{underline}$1{/underline}');
         string = await resolveMention(string, guild);
-        return string;
+        string = formatAttachments(msg, string);
+
+        return `> ${msg.author.username}: ${string}`;
     }
 
     Client.on('ready', () => {
@@ -39,7 +54,7 @@ const main = async () => {
 
     Client.on('message', async (msg) => {
         if (msg.channel.type === "text" && GUI.activeChannel && msg.channel.id === GUI.activeChannel.id) {
-            GUI.pushMessage(await formatMessage(`> ${msg.author.username}: ${msg.content}`, msg.guild));
+            GUI.pushMessage(await formatMessage(msg, msg.guild));
         }
     });
 
