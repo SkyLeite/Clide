@@ -92,7 +92,11 @@ const main = async () => {
         }
     })
 
-    Client.login(config.token);
+    try {
+        Client.login(config.token);
+    } catch (err) {
+        process.exit(1);
+    }
 }
 
 main().catch(err => { throw err });
