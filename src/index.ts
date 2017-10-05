@@ -44,7 +44,7 @@ const main = async () => {
         string = await resolveMention(string, guild);
         string = formatAttachments(msg, string);
 
-        return `> ${msg.author.username}: ${string}`;
+        return `> ${msg.member.displayName || msg.author.username}: ${string}`;
     }
 
     Client.on('ready', () => {
@@ -55,6 +55,12 @@ const main = async () => {
     Client.on('message', async (msg) => {
         if (msg.channel.type === "text" && GUI.activeChannel && msg.channel.id === GUI.activeChannel.id) {
             GUI.pushMessage(await formatMessage(msg, msg.guild));
+        }
+    });
+
+    Client.on('messageDelete', async (msg) => {
+        if (GUI.ready && GUI.activeChannel.id === msg.channel.id) {
+            GUI.deleteMessage(await formatMessage(msg, msg.guild));
         }
     });
 

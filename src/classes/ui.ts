@@ -8,6 +8,7 @@ export class UI {
     input: blessed.Widgets.TextboxElement;
     loading: blessed.Widgets.BoxElement;
     program: any;
+    ready: boolean;
 
     client: discord.Client;
     activeGuild: discord.Guild;
@@ -22,6 +23,7 @@ export class UI {
     init() {
         if (!this.activeGuild) {
             this.renderGuildSelect();
+            this.ready = true;
         }
         else {
             this.renderUI();
@@ -189,6 +191,14 @@ export class UI {
     pushMessage(text: string) {
         this.chat.pushLine(text);
         this.chat.setScrollPerc(100);
+        this.screen.render();
+    }
+
+    deleteMessage(msg: string) {
+        const line = this.chat.getScreenLines().findIndex(i => {
+            return i === msg
+        });
+        this.chat.deleteLine(line);
         this.screen.render();
     }
 
