@@ -172,12 +172,12 @@ export class UI {
             process.exit(0);
         });
 
-        this.input.key('C-k', () => {
+        this.input.key('C-s', () => {
             this.hideUI();
-            this.renderChannelSelect();
+            this.renderGuildSelect();
         });
 
-        this.input.key('C-s', () => {
+        this.input.key('C-t', () => {
             this.hideUI();
             this.renderGuildSelect();
         });

@@ -1,9 +1,31 @@
+#!/usr/bin/env node
 import * as blessed from 'blessed';
 import * as discord from 'discord.js';
+import * as readline from 'readline';
 import { UI } from './classes/ui';
 import * as mz from 'mz';
 
+const getUserToken = () => {
+    return new Promise((resolve, reject) => {
+        const rl = readline.createInterface({
+            input: process.stdin,
+            output: process.stdout
+        });
+
+        rl.question('What is your user token? ', (token) => {
+            rl.close();
+            resolve(token);
+        });
+    });
+}
+
 const main = async () => {
+    // Checks for user config
+    if (!await mz.fs.exists(__dirname + '/config.json')) {
+        const token = await getUserToken();
+        await mz.fs.writeFile(__dirname + '/config.json', JSON.stringify({ token: token }));
+    }
+
     const config = JSON.parse(await mz.fs.readFile(__dirname + '/config.json', 'utf8'));
     const Client = new discord.Client();
     const GUI = new UI();
