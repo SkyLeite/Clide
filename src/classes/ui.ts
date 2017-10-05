@@ -115,6 +115,48 @@ export class UI {
         this.screen.render();
     }
 
+    renderMemberList() {
+        const members = this.activeChannel.members.map(i => {
+            return `${i.presence.status} ${i.displayName}`;
+        });
+
+        const memberList = blessed.list({
+            items: members,
+            parent: this.screen,
+            label: 'Members: ',
+            draggable: true,
+            top: 'center',
+            left: 'center',
+            width: '50%',
+            height: '50%',
+            scrollable: true,
+            keys: true,
+            mouse: true,
+            border: {
+                type: 'line'
+            },
+            style: {
+                item: {
+                    hover: {
+                        bg: 'blue'
+                    }
+                },
+                selected: {
+                    bg: 'blue',
+                    bold: true
+                }
+            },
+        });
+
+        memberList.on('select', () => {
+            memberList.destroy();
+            this.renderUI();
+        });
+
+        memberList.focus();
+        this.screen.render();
+    }
+
     initLoading() {
         this.loading = blessed.box({
             top: 'center',
@@ -176,6 +218,11 @@ export class UI {
         this.input.key('C-t', () => {
             this.hideUI();
             this.renderGuildSelect();
+        });
+
+        this.input.key('C-d', () => {
+            this.hideUI();
+            this.renderMemberList();
         });
 
         this.screen.append(this.chat);
