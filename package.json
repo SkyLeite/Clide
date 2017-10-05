@@ -1,6 +1,6 @@
 {
-  "name": "clide",
-  "version": "1.0.0",
+  "name": "clide-discord",
+  "version": "1.0.1",
   "description": "Command line interface for Discord.",
   "main": "./src/index.js",
   "scripts": {
