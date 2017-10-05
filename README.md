@@ -30,7 +30,7 @@ OR
 - [x] Read / send messages to channels
 - [ ] Read / send messages from PMs
 - [ ] Mention users
-- [ ] Be mentioned
+- [x] Be mentioned
 - [ ] Send / receive media
 - [ ] See embeds
 - [x] Switch current active guild / channel
