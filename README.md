@@ -4,7 +4,7 @@ Command line interface Discord environment.
 
 ## Installing
 
-1. Run `npm install -g clyde`
+1. Run `npm install -g clide-discord`
 
 OR
 
