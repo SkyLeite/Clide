@@ -117,20 +117,20 @@ export class UI {
 
     renderMemberList() {
         const members = this.activeChannel.members.map(i => {
-            return `${i.presence.status} ${i.displayName}`;
+            return `${i.displayName}`;
         });
 
         const memberList = blessed.list({
             items: members,
             parent: this.screen,
             label: 'Members: ',
+            keys: true,
             draggable: true,
             top: 'center',
             left: 'center',
             width: '50%',
             height: '50%',
             scrollable: true,
-            keys: true,
             mouse: true,
             border: {
                 type: 'line'
@@ -148,7 +148,12 @@ export class UI {
             },
         });
 
-        memberList.on('select', () => {
+        memberList.on('select', (member) => {
+            memberList.destroy();
+            this.renderUI();
+        });
+
+        memberList.on('cancel', () => {
             memberList.destroy();
             this.renderUI();
         });

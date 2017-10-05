@@ -81,16 +81,16 @@ const main = async () => {
     });
 
     Client.on('messageDelete', async (msg) => {
-        if (GUI.ready && GUI.activeChannel.id === msg.channel.id) {
+        if (GUI.ready && GUI.activeChannel && GUI.activeChannel.id === msg.channel.id) {
             GUI.deleteMessage(await formatMessage(msg, msg.guild));
         }
     });
 
     Client.on('messageUpdate', async (oldMsg, newMsg) => {
-        if (GUI.ready && GUI.activeChannel.id === oldMsg.channel.id) {
+        if (GUI.ready && GUI.activeChannel && GUI.activeChannel.id === oldMsg.channel.id) {
             GUI.updateMessage(await formatMessage(oldMsg, oldMsg.guild), await formatMessage(newMsg, newMsg.guild));
         }
-    })
+    });
 
     Client.login(config.token);
 }
