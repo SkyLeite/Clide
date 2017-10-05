@@ -64,6 +64,12 @@ const main = async () => {
         }
     });
 
+    Client.on('messageUpdate', async (oldMsg, newMsg) => {
+        if (GUI.ready && GUI.activeChannel.id === oldMsg.channel.id) {
+            GUI.updateMessage(await formatMessage(oldMsg, oldMsg.guild), await formatMessage(newMsg, newMsg.guild));
+        }
+    })
+
     Client.login(config.token);
 }
 

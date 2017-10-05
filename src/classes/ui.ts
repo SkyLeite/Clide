@@ -198,7 +198,18 @@ export class UI {
         const line = this.chat.getScreenLines().findIndex(i => {
             return i === msg
         });
+
         this.chat.deleteLine(line);
+        this.screen.render();
+    }
+
+    updateMessage(oldMsg: string, newMsg: string) {
+        const line = this.chat.getScreenLines().findIndex(i => {
+            return i === oldMsg
+        });
+
+        this.chat.deleteLine(line);
+        this.chat.insertLine(line, newMsg);
         this.screen.render();
     }
 
