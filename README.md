@@ -1,6 +1,6 @@
 # Clide
 
-A command-line interface client for Discord.
+Command line interface Discord environment.
 
 ## Installing
 
