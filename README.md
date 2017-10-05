@@ -24,6 +24,7 @@ OR
 - `esc` - Exits Clide
 - `Ctrl+S` - Opens server selection screen
 - `Ctrl+K` - Open channel selection screen
+- `Ctrl+D` - Open member list
 
 ## Feature List
 
