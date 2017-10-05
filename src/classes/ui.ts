@@ -1,5 +1,6 @@
 import * as blessed from 'blessed';
 import * as discord from 'discord.js';
+import * as mz from 'mz';
 
 export class UI {
     screen: blessed.Widgets.Screen;
@@ -7,6 +8,7 @@ export class UI {
     input: blessed.Widgets.TextboxElement;
     loading: blessed.Widgets.BoxElement;
     program: any;
+    ready: boolean;
 
     client: discord.Client;
     activeGuild: discord.Guild;
@@ -21,6 +23,7 @@ export class UI {
     init() {
         if (!this.activeGuild) {
             this.renderGuildSelect();
+            this.ready = true;
         }
         else {
             this.renderUI();
@@ -35,7 +38,7 @@ export class UI {
     renderGuildSelect() {
         const guilds = this.client.guilds;
         const selectScreen = blessed.list({
-            items: guilds.map(i => i.name),
+            items: guilds.map((i: discord.Guild) => i.name),
             parent: this.screen,
             label: 'Guilds: ',
             draggable: true,
@@ -46,7 +49,9 @@ export class UI {
             scrollable: true,
             keys: true,
             mouse: true,
-            vi: true,
+            border: {
+                type: 'line'
+            },
             style: {
                 item: {
                     hover: {
@@ -84,7 +89,9 @@ export class UI {
             scrollable: true,
             keys: true,
             mouse: true,
-            vi: true,
+            border: {
+                type: 'line'
+            },
             style: {
                 item: {
                     hover: {
@@ -165,12 +172,12 @@ export class UI {
             process.exit(0);
         });
 
-        this.input.key('C-k', () => {
+        this.input.key('C-s', () => {
             this.hideUI();
-            this.renderChannelSelect();
+            this.renderGuildSelect();
         });
 
-        this.input.key('C-s', () => {
+        this.input.key('C-t', () => {
             this.hideUI();
             this.renderGuildSelect();
         });
@@ -181,22 +188,36 @@ export class UI {
         this.screen.render();
     }
 
-    formatText(string: string) {
-        const bold = /\*\*([^\*]*)\*\*/;
-        const underline = /__([^\*]*)__/;
-
-        string = string.replace(bold, '{bold}$1{/bold}');
-        string = string.replace(underline, '{underline}$1{/underline}')
-        return string;
+    pushMessage(text: string) {
+        this.chat.pushLine(text);
+        this.chat.setScrollPerc(100);
+        this.screen.render();
     }
 
-    pushMessage(text: string) {
-        this.chat.pushLine(this.formatText(text));
-        this.chat.setScrollPerc(100);
+    deleteMessage(msg: string) {
+        const line = this.chat.getScreenLines().findIndex(i => {
+            return i === msg
+        });
+
+        this.chat.deleteLine(line);
+        this.screen.render();
+    }
+
+    updateMessage(oldMsg: string, newMsg: string) {
+        const line = this.chat.getScreenLines().findIndex(i => {
+            return i === oldMsg
+        });
+
+        this.chat.deleteLine(line);
+        this.chat.insertLine(line, newMsg);
         this.screen.render();
     }
 
     setDiscordClient(client: discord.Client) {
         this.client = client;
+    }
+
+    log() {
+
     }
 }
