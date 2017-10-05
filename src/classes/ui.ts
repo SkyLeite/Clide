@@ -168,10 +168,6 @@ export class UI {
             process.exit(0);
         });
 
-        this.input.key('escape', () => {
-            process.exit(0);
-        });
-
         this.input.key('C-s', () => {
             this.hideUI();
             this.renderGuildSelect();
