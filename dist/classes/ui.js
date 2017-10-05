@@ -189,9 +189,6 @@ var UI = /** @class */ (function () {
         this.input.key('escape', function () {
             process.exit(0);
         });
-        this.input.key('escape', function () {
-            process.exit(0);
-        });
         this.input.key('C-s', function () {
             _this.hideUI();
             _this.renderGuildSelect();
@@ -233,4 +230,3 @@ var UI = /** @class */ (function () {
     return UI;
 }());
 exports.UI = UI;
-//# sourceMappingURL=ui.js.map
