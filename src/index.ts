@@ -76,21 +76,21 @@ const main = async () => {
 
     Client.on('message', async (msg) => {
         if (msg.channel.type === "text" && GUI.activeChannel && msg.channel.id === GUI.activeChannel.id) {
-            GUI.pushMessage(await formatMessage(msg, msg.guild));
+            await GUI.pushMessage(await formatMessage(msg, msg.guild), msg);
         }
     });
 
     Client.on('messageDelete', async (msg) => {
-        if (GUI.ready && GUI.activeChannel.id === msg.channel.id) {
-            GUI.deleteMessage(await formatMessage(msg, msg.guild));
+        if (GUI.ready && GUI.activeChannel && GUI.activeChannel.id === msg.channel.id) {
+            await GUI.deleteMessage(await formatMessage(msg, msg.guild), msg);
         }
     });
 
     Client.on('messageUpdate', async (oldMsg, newMsg) => {
-        if (GUI.ready && GUI.activeChannel.id === oldMsg.channel.id) {
-            GUI.updateMessage(await formatMessage(oldMsg, oldMsg.guild), await formatMessage(newMsg, newMsg.guild));
+        if (GUI.ready && GUI.activeChannel && GUI.activeChannel.id === oldMsg.channel.id) {
+            GUI.updateMessage(await formatMessage(oldMsg, oldMsg.guild), await formatMessage(newMsg, newMsg.guild), newMsg);
         }
-    })
+    });
 
     try {
         Client.login(config.token);

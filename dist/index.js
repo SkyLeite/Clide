@@ -183,4 +183,3 @@ var main = function () { return __awaiter(_this, void 0, void 0, function () {
     });
 }); };
 main().catch(function (err) { throw err; });
-//# sourceMappingURL=index.js.map

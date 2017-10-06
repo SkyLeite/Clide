@@ -24,6 +24,8 @@ OR
 - `esc` - Exits Clide
 - `Ctrl+S` - Opens server selection screen
 - `Ctrl+K` - Open channel selection screen
+- `Ctrl+D` - Open member list
+- `Ctrl+A` - Open message options (delete, edit, etc)
 
 ## Feature List
 
@@ -46,3 +48,4 @@ OR
 - [ ] Edit servers
 - [ ] Change user settings
 - [ ] Change avatar
+- [x] Delete messages

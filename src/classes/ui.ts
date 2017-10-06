@@ -13,6 +13,7 @@ export class UI {
     client: discord.Client;
     activeGuild: discord.Guild;
     activeChannel: discord.TextChannel;
+    messageCache: Array<{ message : discord.Message, formattedMessage : string }> = [];
 
     constructor() {
         this.screen = blessed.screen({
@@ -31,8 +32,13 @@ export class UI {
     }
 
     hideUI() {
-        this.chat.destroy();
-        this.input.destroy();
+        this.chat.hide();
+        this.input.hide();
+    }
+
+    showUI() {
+        this.chat.show();
+        this.input.show();
     }
 
     renderGuildSelect() {
@@ -115,6 +121,53 @@ export class UI {
         this.screen.render();
     }
 
+    renderMemberList() {
+        const members = this.activeChannel.members.map(i => {
+            return `${i.displayName}`;
+        });
+
+        const memberList = blessed.list({
+            items: members,
+            parent: this.screen,
+            label: 'Members: ',
+            keys: true,
+            draggable: true,
+            top: 'center',
+            left: 'center',
+            width: '50%',
+            height: '50%',
+            scrollable: true,
+            mouse: true,
+            border: {
+                type: 'line'
+            },
+            style: {
+                item: {
+                    hover: {
+                        bg: 'blue'
+                    }
+                },
+                selected: {
+                    bg: 'blue',
+                    bold: true
+                }
+            },
+        });
+
+        memberList.on('select', (member) => {
+            memberList.destroy();
+            this.renderUI();
+        });
+
+        memberList.on('cancel', () => {
+            memberList.destroy();
+            this.renderUI();
+        });
+
+        memberList.focus();
+        this.screen.render();
+    }
+
     initLoading() {
         this.loading = blessed.box({
             top: 'center',
@@ -152,10 +205,10 @@ export class UI {
             },
         });
 
-        this.input.on('submit', async (text) => {
+        this.input.on('submit', async (text: string) => {
             if (this.activeChannel) {
                 const channel = await this.activeChannel as discord.TextChannel;
-                if (channel.type === "text") {
+                if (text && channel.type === "text") {
                     channel.send(text);
                 }
             }
@@ -168,49 +221,233 @@ export class UI {
             process.exit(0);
         });
 
-        this.input.key('escape', () => {
-            process.exit(0);
-        });
-
         this.input.key('C-s', () => {
+            this.messageCache = [];
             this.hideUI();
             this.renderGuildSelect();
         });
 
         this.input.key('C-t', () => {
+            this.messageCache = [];
             this.hideUI();
-            this.renderGuildSelect();
+            this.renderChannelSelect();
         });
+
+        this.input.key('C-d', () => {
+            this.hideUI();
+            this.renderMemberList();
+        });
+
+        this.input.key('C-a', async () => {
+            this.hideUI();
+            await this.renderMessageSelect();
+        })
 
         this.screen.append(this.chat);
         this.screen.append(this.input);
         this.input.focus();
         this.screen.render();
+
+        for (let message of this.messageCache) {
+            this.chat.pushLine(message.formattedMessage);
+            this.chat.render();
+        }
     }
 
-    pushMessage(text: string) {
+    renderMessageEdit(message: discord.Message) {
+        const textArea = blessed.textarea({
+            parent: this.screen,
+            label: 'Guilds: ',
+            top: 'center',
+            left: 'center',
+            width: '50%',
+            height: '50%',
+            keys: true,
+            mouse: true,
+            border: {
+                type: 'line'
+            },
+        });
+
+        this.screen.render();
+    }
+
+    renderMessageOptions(message: discord.Message) {
+        const optionSelect = blessed.list({
+            items: ['Delete', 'Edit'],
+            parent: this.screen,
+            label: 'Guilds: ',
+            top: 'center',
+            left: 'center',
+            width: '50%',
+            height: '50%',
+            keys: true,
+            mouse: true,
+            border: {
+                type: 'line'
+            },
+            style: {
+                item: {
+                    hover: {
+                        bg: 'blue'
+                    }
+                },
+                selected: {
+                    bg: 'blue',
+                    bold: true
+                }
+            },
+        });
+
+        optionSelect.on('select', async (option) => {
+            optionSelect.destroy();
+            this.screen.render();
+            if (option.getText() === 'Delete') {
+                await (await this.activeChannel.fetchMessage(message.id)).delete();
+            }
+            if (option.getText() === 'Edit') {
+                this.hideUI();
+                this.renderMessageEdit(message);
+            }
+            this.renderUI();
+        });
+
+        this.screen.append(optionSelect);
+        optionSelect.focus();
+        this.screen.render();
+    }
+
+    async renderMessageSelect() {
+        const messages = await Promise.all(this.messageCache
+            .map(async i => i.formattedMessage
+        ));
+
+        const messageSelect = blessed.list({
+            items: messages,
+            parent: this.screen,
+            label: `${this.activeGuild.name} - #${this.activeChannel.name}`,
+            top: 0,
+            left: 0,
+            width: '100%',
+            height: '90%',
+            scrollable: true,
+            keys: true,
+            mouse: true,
+            border: {
+                type: 'line'
+            },
+            style: {
+                item: {
+                    hover: {
+                        bg: 'blue'
+                    }
+                },
+                selected: {
+                    bg: 'blue',
+                    bold: true
+                }
+            },
+        });
+
+        messageSelect.on('select', (text) => {
+            const message = this.messageCache.find(i => i.formattedMessage === text.getText());
+            if (message) {
+                this.hideUI();
+                this.renderMessageOptions(message.message);
+            }
+
+            messageSelect.destroy();
+            this.showUI();
+        });
+
+        this.screen.append(messageSelect);
+        this.screen.render();
+    }
+
+    async resolveMention (string: string, guild: discord.Guild) {
+        const mention = /<@(\d*)>/g;
+        let match = mention.exec(string);
+
+        while (match != null) {
+            const member = await guild.members.get(match[1]);
+            string = string.replace(mention, `{#0000ff-fg}@${member ? member.user.username : match[1]}{/#0000ff-fg}`);
+            match = mention.exec(string);
+        }
+
+        return string;
+    }
+
+    async formatAttachments (msg: discord.Message, string: string) {
+        if (msg.attachments.array().length > 0) {
+            string += " (";
+            for (let attachment of msg.attachments.array()) {
+                string += attachment.url;
+            }
+            string += ")";
+        }
+
+        return string;
+    }
+
+    async formatMessage (msg: discord.Message, guild: discord.Guild) {
+        let string = msg.content;
+        const bold = /\*\*([^\*]*)\*\*/g;
+        const underline = /__([^\*]*)__/g;
+
+        string = string.replace(bold, '{bold}$1{/bold}');
+        string = string.replace(underline, '{underline}$1{/underline}');
+        string = await this.resolveMention(string, guild);
+        string = await this.formatAttachments(msg, string);
+
+        return `> ${msg.member.displayName || msg.author.username}: ${string}`;
+    }
+
+    async updateMessageCache(msg: discord.Message) {
+        const screenLines = this.chat.getLines();
+        const formattedMessage = await this.formatMessage(msg, msg.guild);
+
+        if (screenLines.includes(formattedMessage)) {
+            this.messageCache.push({ message: msg, formattedMessage: formattedMessage});
+        }
+    }
+
+    async deleteFromMessageCache(msg: discord.Message) {
+        const index = this.messageCache.findIndex(i => i.message.id === msg.id)
+        if (index > -1) {
+            this.messageCache.splice(index, 1);
+        }
+    }
+
+    async pushMessage(text: string, msg: discord.Message) {
+        // hue
         this.chat.pushLine(text);
         this.chat.setScrollPerc(100);
         this.screen.render();
+
+        await this.updateMessageCache(msg);
     }
 
-    deleteMessage(msg: string) {
+    async deleteMessage(msgString: string, msg: discord.Message) {
         const line = this.chat.getScreenLines().findIndex(i => {
-            return i === msg
+            return i === msgString
         });
 
         this.chat.deleteLine(line);
         this.screen.render();
+
+        await this.deleteFromMessageCache(msg);
     }
 
-    updateMessage(oldMsg: string, newMsg: string) {
+    updateMessage(oldMsgString: string, newMsgString: string, newMsg: discord.Message) {
         const line = this.chat.getScreenLines().findIndex(i => {
-            return i === oldMsg
+            return i === oldMsgString
         });
 
         this.chat.deleteLine(line);
-        this.chat.insertLine(line, newMsg);
+        this.chat.insertLine(line, newMsgString);
         this.screen.render();
+
+        this.updateMessageCache(newMsg);
     }
 
     setDiscordClient(client: discord.Client) {
