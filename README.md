@@ -1,6 +1,6 @@
 # Clide
 
-Command line interface Discord environment.
+A **C**ommand **Li**ne **D**iscord **E**nvironment that actually works.
 
 ## Installing
 
