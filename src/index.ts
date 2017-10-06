@@ -2,6 +2,7 @@
 import * as blessed from 'blessed';
 import * as discord from 'discord.js';
 import * as readline from 'readline';
+import * as db from 'sqlite';
 import { UI } from './classes/ui';
 import * as mz from 'mz';
 
@@ -76,19 +77,19 @@ const main = async () => {
 
     Client.on('message', async (msg) => {
         if (msg.channel.type === "text" && GUI.activeChannel && msg.channel.id === GUI.activeChannel.id) {
-            GUI.pushMessage(await formatMessage(msg, msg.guild));
+            await GUI.pushMessage(await formatMessage(msg, msg.guild), msg);
         }
     });
 
     Client.on('messageDelete', async (msg) => {
         if (GUI.ready && GUI.activeChannel && GUI.activeChannel.id === msg.channel.id) {
-            GUI.deleteMessage(await formatMessage(msg, msg.guild));
+            GUI.deleteMessage(await formatMessage(msg, msg.guild), msg);
         }
     });
 
     Client.on('messageUpdate', async (oldMsg, newMsg) => {
         if (GUI.ready && GUI.activeChannel && GUI.activeChannel.id === oldMsg.channel.id) {
-            GUI.updateMessage(await formatMessage(oldMsg, oldMsg.guild), await formatMessage(newMsg, newMsg.guild));
+            GUI.updateMessage(await formatMessage(oldMsg, oldMsg.guild), await formatMessage(newMsg, newMsg.guild), newMsg);
         }
     });
 
