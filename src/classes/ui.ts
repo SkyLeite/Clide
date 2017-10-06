@@ -222,13 +222,15 @@ export class UI {
         });
 
         this.input.key('C-s', () => {
+            this.messageCache = [];
             this.hideUI();
             this.renderGuildSelect();
         });
 
         this.input.key('C-t', () => {
+            this.messageCache = [];
             this.hideUI();
-            this.renderGuildSelect();
+            this.renderChannelSelect();
         });
 
         this.input.key('C-d', () => {
@@ -236,9 +238,9 @@ export class UI {
             this.renderMemberList();
         });
 
-        this.input.key('C-a', () => {
+        this.input.key('C-a', async () => {
             this.hideUI();
-            this.renderMessageSelect();
+            await this.renderMessageSelect();
         })
 
         this.screen.append(this.chat);
@@ -250,6 +252,24 @@ export class UI {
             this.chat.pushLine(message.formattedMessage);
             this.chat.render();
         }
+    }
+
+    renderMessageEdit(message: discord.Message) {
+        const textArea = blessed.textarea({
+            parent: this.screen,
+            label: 'Guilds: ',
+            top: 'center',
+            left: 'center',
+            width: '50%',
+            height: '50%',
+            keys: true,
+            mouse: true,
+            border: {
+                type: 'line'
+            },
+        });
+
+        this.screen.render();
     }
 
     renderMessageOptions(message: discord.Message) {
@@ -280,11 +300,16 @@ export class UI {
         });
 
         optionSelect.on('select', async (option) => {
+            optionSelect.destroy();
+            this.screen.render();
             if (option.getText() === 'Delete') {
                 await (await this.activeChannel.fetchMessage(message.id)).delete();
-                optionSelect.destroy();
-                this.renderUI();
             }
+            if (option.getText() === 'Edit') {
+                this.hideUI();
+                this.renderMessageEdit(message);
+            }
+            this.renderUI();
         });
 
         this.screen.append(optionSelect);
@@ -330,6 +355,7 @@ export class UI {
                 this.hideUI();
                 this.renderMessageOptions(message.message);
             }
+
             messageSelect.destroy();
             this.showUI();
         });
@@ -385,6 +411,13 @@ export class UI {
         }
     }
 
+    async deleteFromMessageCache(msg: discord.Message) {
+        const index = this.messageCache.findIndex(i => i.message.id === msg.id)
+        if (index > -1) {
+            this.messageCache.splice(index, 1);
+        }
+    }
+
     async pushMessage(text: string, msg: discord.Message) {
         // hue
         this.chat.pushLine(text);
@@ -394,7 +427,7 @@ export class UI {
         await this.updateMessageCache(msg);
     }
 
-    deleteMessage(msgString: string, msg: discord.Message) {
+    async deleteMessage(msgString: string, msg: discord.Message) {
         const line = this.chat.getScreenLines().findIndex(i => {
             return i === msgString
         });
@@ -402,7 +435,7 @@ export class UI {
         this.chat.deleteLine(line);
         this.screen.render();
 
-        this.updateMessageCache(msg);
+        await this.deleteFromMessageCache(msg);
     }
 
     updateMessage(oldMsgString: string, newMsgString: string, newMsg: discord.Message) {

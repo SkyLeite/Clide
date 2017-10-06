@@ -2,7 +2,6 @@
 import * as blessed from 'blessed';
 import * as discord from 'discord.js';
 import * as readline from 'readline';
-import * as db from 'sqlite';
 import { UI } from './classes/ui';
 import * as mz from 'mz';
 
@@ -83,7 +82,7 @@ const main = async () => {
 
     Client.on('messageDelete', async (msg) => {
         if (GUI.ready && GUI.activeChannel && GUI.activeChannel.id === msg.channel.id) {
-            GUI.deleteMessage(await formatMessage(msg, msg.guild), msg);
+            await GUI.deleteMessage(await formatMessage(msg, msg.guild), msg);
         }
     });
 
