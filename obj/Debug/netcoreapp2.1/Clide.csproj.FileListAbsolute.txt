@@ -1,0 +1,11 @@
+/home/rodrigo/Repos/Clide/bin/Debug/netcoreapp2.1/Clide.deps.json
+/home/rodrigo/Repos/Clide/bin/Debug/netcoreapp2.1/Clide.runtimeconfig.json
+/home/rodrigo/Repos/Clide/bin/Debug/netcoreapp2.1/Clide.runtimeconfig.dev.json
+/home/rodrigo/Repos/Clide/bin/Debug/netcoreapp2.1/Clide.dll
+/home/rodrigo/Repos/Clide/bin/Debug/netcoreapp2.1/Clide.pdb
+/home/rodrigo/Repos/Clide/obj/Debug/netcoreapp2.1/Clide.csprojAssemblyReference.cache
+/home/rodrigo/Repos/Clide/obj/Debug/netcoreapp2.1/Clide.csproj.CoreCompileInputs.cache
+/home/rodrigo/Repos/Clide/obj/Debug/netcoreapp2.1/Clide.AssemblyInfoInputs.cache
+/home/rodrigo/Repos/Clide/obj/Debug/netcoreapp2.1/Clide.AssemblyInfo.cs
+/home/rodrigo/Repos/Clide/obj/Debug/netcoreapp2.1/Clide.dll
+/home/rodrigo/Repos/Clide/obj/Debug/netcoreapp2.1/Clide.pdb
