@@ -18,6 +18,8 @@ namespace Clide
     private WebClient WebClient { get; set; }
     private int HeartbeatInterval { get; set; }
     private int? Sequence { get; set; }
+    public delegate void onMessageCallback(Message message);
+    public onMessageCallback onMessage;
     public Discord()
     {
       this.WebClient = new WebClient();
@@ -31,11 +33,12 @@ namespace Clide
       return new Uri(data.url);
     }
 
-    private async Task HandleHello(WebSocketMessage data)
+    private async Task HandleHello(WebSocketMessage<Hello> data)
     {
-      this.HeartbeatInterval = data.d["heartbeat_interval"];
+      this.HeartbeatInterval = data.Data.HeartbeatInterval;
       this.Sequence = data.s;
 
+      this.Heartbeat();
       await this.Identify();
     }
 
@@ -49,11 +52,12 @@ namespace Clide
         { "$device", "disco" },
       };
 
-      var payload = new WebSocketMessage();
+      var payload = new WebSocketMessage<IdentifyParams>();
       payload.op = OPCodes.Identify;
-      payload.d = parameters;
+      payload.Data = parameters;
 
       var data = JsonConvert.SerializeObject(payload);
+
       await this.SendMessage(data);
     }
 
@@ -87,17 +91,43 @@ namespace Clide
         }
 
         var data = (new ASCIIEncoding()).GetString(finalBuffer.ToArray());
-        var message = JsonConvert.DeserializeObject<WebSocketMessage>(data);
+        await this.HandleMessage(data);
+      }
+    }
 
-        switch (message.op)
-        {
-          case OPCodes.Hello:
-            await this.HandleHello(message);
-            break;
-          default:
-            Console.WriteLine(message.op);
-            break;
-        }
+    private async Task HandleDispatch(WebSocketMessage<Message> message)
+    {
+      switch (message.t)
+      {
+        case "MESSAGE_CREATE":
+          this.onMessage(message.Data);
+          break;
+        default:
+          break;
+      }
+    }
+
+    private async Task HandleMessage(string data)
+    {
+      var message = JsonConvert.DeserializeObject<WebSocketMessage>(data);
+      this.Sequence = message.s;
+
+      switch (message.op)
+      {
+        case OPCodes.Hello:
+          await this.HandleHello(JsonConvert.DeserializeObject<WebSocketMessage<Hello>>(data));
+          break;
+        case OPCodes.Dispatch:
+          await this.HandleDispatch(JsonConvert.DeserializeObject<WebSocketMessage<Message>>(data));
+          break;
+        case OPCodes.HeartbeatACK:
+          Console.WriteLine("Heartbeat ok!");
+          break;
+        case OPCodes.InvalidSession:
+          throw new Exception("Invalid Discord token");
+        default:
+          Console.WriteLine(message.op);
+          break;
       }
     }
 
@@ -109,6 +139,24 @@ namespace Clide
       await this.WebSocketClient.SendAsync(buffer, WebSocketMessageType.Text, true, CancellationToken.None);
     }
 
+    private void Heartbeat()
+    {
+      var message = new WebSocketMessage<int?>();
+      message.op = OPCodes.Heartbeat;
+      message.Data = this.Sequence;
+
+      var payload = JsonConvert.SerializeObject(message);
+
+      var task = Task.Factory.StartNew(async () =>
+      {
+        while (this.WebSocketClient.State != WebSocketState.Closed)
+        {
+          await this.SendMessage(payload);
+          await Task.Delay(this.HeartbeatInterval);
+        }
+      });
+    }
+
     public async Task Login(string token)
     {
       this.Token = token;
@@ -116,6 +164,7 @@ namespace Clide
       var GatewayUri = await this.GetWebSocketURL();
       this.WebSocketClient = new ClientWebSocket();
       await this.WebSocketClient.ConnectAsync(GatewayUri, CancellationToken.None);
+
       await this.ReceiveMessage();
     }
   }

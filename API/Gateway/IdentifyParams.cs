@@ -5,12 +5,12 @@ namespace Discord.API.Gateway {
   [JsonObject(MemberSerialization = MemberSerialization.OptIn)]
   internal class IdentifyParams {
     [JsonProperty("token")]
-    public string Token { get; set; }
+    public string Token;
 
     [JsonProperty("properties")]
-    public IDictionary<string, string> Properties { get; set; }
+    public IDictionary<string, string> Properties;
 
     [JsonProperty("large_threshold")]
-    public int LargeThreshold { get; set; }
+    public int LargeThreshold;
   }
 }
