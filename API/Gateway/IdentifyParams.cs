@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using Newtonsoft.Json;
 
 namespace Discord.API.Gateway {
-  [JsonObject(MemberSerialization = MemberSerialization.OptIn)]
+  [JsonObject]
   internal class IdentifyParams {
     [JsonProperty("token")]
     public string Token;

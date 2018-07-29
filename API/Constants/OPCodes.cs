@@ -1,4 +1,4 @@
-namespace Discord.API.Gateway {
+namespace Discord.Constants {
   class OPCodes {
     public const int Dispatch = 0;
     public const int Heartbeat = 1;
